@@ -6,6 +6,8 @@ projector,
 renderer;
 
 var squareArray = [];
+var forwardArray = [];
+var backArray = [];
 
 var mouse = {
     x: 0,
@@ -97,61 +99,86 @@ function render() {
     var ray = new THREE.Ray(camera.position, vector.subSelf(camera.position).normalize());
 
     var intersects = ray.intersectScene(scene);
-
-    if (intersects.length > 0) {
-
-        $.each(squareArray, function()
+    
+    
+    var backCubes = function(target)    
+    {
+        var targetParam = target;
+        $.each(squareArray, function(index)
         {
-          if($(this)[0] === intersects[0].object)
-          {
-            console.log("found");
-          }
-          
+              
+              if(targetParam === undefined) target = $(this)[0];
+              var forIndex = forwardArray.indexOf(target);
+              var backIndex = backArray.indexOf(target);
+              
+              if(forIndex !== -1 && backIndex === -1) 
+              {
+
+                    backArray.push(target);
+                    forwardArray.splice(forIndex, 1);
+                    
+                      var positionT2 = {
+                          x: target.rotation.x
+                      };
+                      var targetT2 = {
+                          x: 0
+                      };
+                      var tween2 = new TWEEN.Tween(positionT2).to(targetT2, 1200).easing(TWEEN.Easing.Elastic.EaseOut);
+                      setTimeout(function()
+                      {
+                          var backIndex2 = backArray.indexOf(target);
+                          backArray.splice(backIndex2, 1);
+                      }, 1200);
+                      tween2.onUpdate(function() {
+                        
+                          $.each(backArray, function(index)
+                          {
+                                $(this)[0].rotation.x = positionT2.x;
+                          });
+                      });
+                      tween2.start();
+
+                }
+          });        
+    };
+    
+    
+    if (intersects.length > 0)
+    {
+        $.each(squareArray, function(index)
+        {
+            if($(this)[0] === intersects[0].object)
+            {
+                if(forwardArray.indexOf($(this)[0]) === -1 ) 
+                {
+                    forwardArray.push($(this)[0]);
+
+                    var positionT = {
+                        x: $(this)[0].rotation.x
+                    };
+                    var targetT = {
+                        x: 90 * Math.PI / 180
+                    };
+                    var tween = new TWEEN.Tween(positionT).to(targetT, 800).easing(TWEEN.Easing.Elastic.EaseOut);
+
+                    tween.onUpdate(function() 
+                    {
+                        $.each(forwardArray, function(index)
+                        {
+                            $(this)[0].rotation.x = positionT.x;
+                        });
+                    });
+
+                    tween.start();
+                }
+
+            }
+            else backCubes($(this)[0]);
         });
-        
-        if (INTERSECTED != intersects[0].object) {
-            
-            
-            INTERSECTED = intersects[0].object;
-            
-            var positionT = {
-                x: INTERSECTED.rotation.x
-            };
-            var targetT = {
-                x: 90 * Math.PI / 180
-            };
-            var tween = new TWEEN.Tween(positionT).to(targetT, 800).easing(TWEEN.Easing.Elastic.EaseOut);
-
-            tween.onUpdate(function() {
-                if (INTERSECTED) INTERSECTED.rotation.x = positionT.x;
-            });
-
-            tween.start();
-        }
-
-    } else {
-
-        if (INTERSECTED)
-        {
-            var positionT2 = {
-                x: INTERSECTED.rotation.x
-            };
-            var targetT2 = {
-                x: 0
-            };
-            var tween2 = new TWEEN.Tween(positionT2).to(targetT2, 1200).easing(TWEEN.Easing.Elastic.EaseOut);
-            if (INTERSECTED) INTERSECTED2 = INTERSECTED;
-            tween2.onUpdate(function() {
-                if (INTERSECTED2) INTERSECTED2.rotation.x = positionT2.x;
-            });
-
-            tween2.start();
-        }
-
-
-        INTERSECTED = null;
-
     }
+    else backCubes();
+    
+
     TWEEN.update();
     renderer.render(scene, camera);
 
