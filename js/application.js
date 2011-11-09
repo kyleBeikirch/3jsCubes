@@ -5,6 +5,8 @@ scene,
 projector,
 renderer;
 
+var squareArray = [];
+
 var mouse = {
     x: 0,
     y: 0
@@ -48,6 +50,8 @@ function init() {
         object.scale.y = 4;
         object.scale.z = 4;
         scene.add(object);
+        squareArray.push(object);
+        
 
     }
 
@@ -96,28 +100,33 @@ function render() {
 
     if (intersects.length > 0) {
 
+        $.each(squareArray, function()
+        {
+          if($(this)[0] === intersects[0].object)
+          {
+            console.log("found");
+          }
+          
+        });
+        
         if (INTERSECTED != intersects[0].object) {
-
-            if (INTERSECTED) INTERSECTED.materials[0].color.setHex(INTERSECTED.currentHex);
-
+            
+            
+            INTERSECTED = intersects[0].object;
+            
             var positionT = {
-                x: 0
+                x: INTERSECTED.rotation.x
             };
             var targetT = {
                 x: 90 * Math.PI / 180
             };
             var tween = new TWEEN.Tween(positionT).to(targetT, 800).easing(TWEEN.Easing.Elastic.EaseOut);
 
-
-            INTERSECTED = intersects[0].object;
             tween.onUpdate(function() {
                 if (INTERSECTED) INTERSECTED.rotation.x = positionT.x;
             });
 
             tween.start();
-
-
-
         }
 
     } else {
@@ -130,7 +139,7 @@ function render() {
             var targetT2 = {
                 x: 0
             };
-            var tween2 = new TWEEN.Tween(positionT2).to(targetT2, 800).easing(TWEEN.Easing.Elastic.EaseOut);
+            var tween2 = new TWEEN.Tween(positionT2).to(targetT2, 1200).easing(TWEEN.Easing.Elastic.EaseOut);
             if (INTERSECTED) INTERSECTED2 = INTERSECTED;
             tween2.onUpdate(function() {
                 if (INTERSECTED2) INTERSECTED2.rotation.x = positionT2.x;
