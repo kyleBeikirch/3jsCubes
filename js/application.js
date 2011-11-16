@@ -8,6 +8,7 @@ renderer;
 var squareArray = [];
 var forwardArray = [];
 var backArray = [];
+var urls = ["textures/posx.jpg", "textures/negx.jpg", "textures/posy.jpg", "textures/negy.jpg", "textures/posz.jpg", "textures/negz.jpg"];
 
 var mouse = {
     x: 0,
@@ -36,14 +37,24 @@ function init() {
     light = new THREE.DirectionalLight(0xffffff);
     light.position.set( - 1, -1, -1).normalize();
     scene.add(light);
+    
+    
+    var materials = [];
 
-    var geometry = new THREE.CubeGeometry(30, 30, 30);
+    for (var n = 0; n < 6; n++)
+    {
+        materials.push([new THREE.MeshBasicMaterial({ map: THREE.ImageUtils.loadTexture(urls[n]) })]);
+        
+    }
+
+    var material = new THREE.MeshFaceMaterial();
+    
+    
+    var geometry = new THREE.CubeGeometry(30, 30, 30, 1, 1, 1, materials);
 
     for (var i = 0; i < 6; i++) {
-
-        var object = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({
-            map: THREE.ImageUtils.loadTexture('textures/timeline.jpg')
-        }));
+      
+        var object = new THREE.Mesh(geometry, material);
 
         object.position.x = 170 * (i % 3) - 170;
         object.position.y = -85 + Math.round((i - 1) / 3) * 170;
